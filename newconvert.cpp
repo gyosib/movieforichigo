@@ -40,19 +40,22 @@ int convertpancake(string filename){
 	Mat frame, frame_gb;
 	
 	int framenum = 0; //frame number
-	int count = 0;
+	int count = 1;
+	int width = 48;
+	int height = 32;
 	for(;;){
 		cap >> frame;
+		string ichigo = "NEW\n"; //ichigojam's program
 		int x0 = 0; //left up in 8*8 block (x0,y0)
 		int y0 = 0;
 		int linenum = 10; //line number
-		string ichigo = "NEW\n\n"; //ichigojam's program
+		int block = 0; //number of 8 8 blocks
 
-		resize(frame, frame, Size(80,40), INTER_CUBIC);
+		resize(frame, frame, Size(width,height), INTER_CUBIC);
 		frame = cont(frame);
-		while(x0 < 80 && y0 < 40){
-			ichigo += to_string(linenum) + " ?\"PC STAMP HEX$(#" + to_string(x0) + ") HEX$(#" + to_string(y0) + ") 00 ";
-			linenum += 10;
+		while(x0 < width && y0 < height){
+			ichigo += to_string(linenum) + " ?\"PC STAMP\";\" \";HEX$(" + to_string(x0) + ",2);\" \";HEX$(" + to_string(y0) + ",2);\" 00 ";
+			linenum++;
 			for(int i=y0;i<y0+8;i++){
 				Vec3b* src = frame.ptr<Vec3b>(i);
 				for(int j=x0;j<x0+8;j++){
@@ -62,22 +65,25 @@ int convertpancake(string filename){
 				}
 			}
 			ichigo += "\n";
-			if(x0 != 72) x0 += 8;
+			block++;
+			if(block % 8 == 0 && count % 30 == 0){
+				ichigo += to_string(linenum) + " lrun " + to_string(framenum+101)+ "\nsave " + to_string(framenum+100) + "\n'D\n\n?\"MJ GETS gyosib.github.io/g/" + to_string(framenum+1) + ".txt";
+				linenum++;
+				savecode("out/"+to_string(framenum)+".txt", ichigo);
+				cout << count << endl;
+				ichigo = "NEW\n\n";
+				framenum++;
+			}
+			if(x0 != width-8) x0 += 8;
 			else{
 				x0 = 0;
 				y0 += 8;
 			}
 		}
-		ichigo += "\nsave "+to_string(framenum+4)+"\n`Download\n?\"MJ GETS gyosib.github.io/"+to_string(framenum+1)+".txt";
 		resize(frame, frame, Size(), 10, 10);
 		if(frame.empty()) continue;
 		imshow("gochiusa",frame);
 		if(waitKey(30) >=0) break;
-		if(count % 30 == 0){
-			savecode("out/"+to_string(framenum)+".txt", ichigo);
-			cout << ichigo << endl;
-			framenum++;
-		}
 		count++;
 	}
 	return 0;
