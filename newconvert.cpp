@@ -55,6 +55,7 @@ int convertpancake(string filename){
 		frame = cont(frame);
 		while(x0 < width && y0 < height){
 			ichigo += to_string(linenum) + " ?\"PC STAMP\";\" \";HEX$(" + to_string(x0) + ",2);\" \";HEX$(" + to_string(y0) + ",2);\" 00 ";
+			//ichigo += to_string(linenum) + " ?\"PC STAMP #" + to_string(x0) + " #" + to_string(y0) + " 00 ";
 			linenum++;
 			for(int i=y0;i<y0+8;i++){
 				Vec3b* src = frame.ptr<Vec3b>(i);
@@ -66,8 +67,13 @@ int convertpancake(string filename){
 			}
 			ichigo += "\n";
 			block++;
-			if(block % 8 == 0 && count % 30 == 0){
+			if(block % 8 == 0 && count % 75 == 0){
+				if(block % 24 == 0){
+					ichigo += to_string(linenum) + " wait(2500)\n"; 
+					linenum++;
+				}
 				ichigo += to_string(linenum) + " lrun " + to_string(framenum+101)+ "\nsave " + to_string(framenum+100) + "\n'D\n\n?\"MJ GETS gyosib.github.io/g/" + to_string(framenum+1) + ".txt";
+				
 				linenum++;
 				savecode("out/"+to_string(framenum)+".txt", ichigo);
 				cout << count << endl;
